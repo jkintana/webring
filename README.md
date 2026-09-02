@@ -22,7 +22,7 @@ as `data/status.json`, which the build reads.
 2. Once merged, add this to your site's footer:
 
    ```html
-   <iframe src="https://ring.waisi.now/embed/<your-slug>"
+   <iframe src="https://ring.waisi.live/embed/<your-slug>"
            title="webring"
            style="width:100%;height:56px;border:0"
            loading="lazy"></iframe>
@@ -63,14 +63,15 @@ match until the domain is real.
 
 ## Setup checklist
 
-- [x] Name and domain: `WAISI & co` at `ring.waisi.now`
+- [x] Name and domain: `WAISI & co` at `ring.waisi.live`
 - [ ] Push to GitHub as a **public** repo (Actions minutes are free and
       unlimited there; a private repo would burn its 2,000 monthly minutes)
 - [ ] Settings → Pages → Source: **GitHub Actions**
-- [ ] At Porkbun, add a DNS record: type `CNAME`, host `ring`,
-      answer `<your-github-username>.github.io`
-- [ ] Settings → Pages → Custom domain: `ring.waisi.now`, then wait for the
-      DNS check to pass and tick **Enforce HTTPS**
+- [ ] Settings → Pages → Custom domain: `ring.waisi.live`, Save
+- [ ] In Squarespace Domains → `waisi.live` → DNS Settings, add a record:
+      type `CNAME`, host `ring`, data `jkintana.github.io`
+- [ ] Wait for GitHub's DNS check to pass, then tick **Enforce HTTPS**
+      (can take up to 24h to become available)
 - [ ] Push once and confirm the workflow deploys
 - [ ] Add the iframe to your own site first, so there is one healthy member
 - [ ] Send everyone else their snippet
@@ -99,7 +100,7 @@ member flips to `no_webring_embed` the moment you change `siteUrl`.
 
 ```json
 "siteUrl": "https://ring.newname.dev",
-"previousSiteUrls": ["https://ring.waisi.now"]
+"previousSiteUrls": ["https://ring.waisi.live"]
 ```
 
 **The widget itself: needs the old domain to keep resolving.** Members' iframes

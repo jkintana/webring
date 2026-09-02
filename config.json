@@ -1,7 +1,7 @@
 {
   "name": "WAISI & co",
   "tagline": "a webring of friends who met at the Wisconsin AI Safety Initiative",
-  "siteUrl": "https://ring.waisi.now",
+  "siteUrl": "https://ring.waisi.live",
   "previousSiteUrls": [],
   "healthcheck": {
     "timeoutMs": 8000,
