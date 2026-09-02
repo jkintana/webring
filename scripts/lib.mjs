@@ -12,6 +12,10 @@ export async function readConfig() {
   // One trailing slash, never two: every embed URL is built off this.
   cfg.siteUrl = cfg.siteUrl.replace(/\/+$/, '');
   cfg.embedBase = `${cfg.siteUrl}/embed`;
+  // Every base the health check will accept. Current one first, so it wins when
+  // a page happens to reference more than one.
+  cfg.previousSiteUrls = (cfg.previousSiteUrls ?? []).map((u) => u.replace(/\/+$/, ''));
+  cfg.embedBases = [cfg.embedBase, ...cfg.previousSiteUrls.map((u) => `${u}/embed`)];
   return cfg;
 }
 
@@ -58,6 +62,7 @@ export async function readStatus() {
 
 export const HEALTH = {
   OK: 'ok',
+  OK_LEGACY: 'ok_legacy_url',
   UNREACHABLE: 'site_unreachable',
   NO_EMBED: 'no_webring_embed',
   SLUG_MISMATCH: 'slug_mismatch',
@@ -66,6 +71,7 @@ export const HEALTH = {
 
 export const HEALTH_LABEL = {
   [HEALTH.OK]: 'in the ring',
+  [HEALTH.OK_LEGACY]: 'in the ring, on an old URL',
   [HEALTH.UNREACHABLE]: 'site unreachable',
   [HEALTH.NO_EMBED]: 'widget not found on page',
   [HEALTH.SLUG_MISMATCH]: 'widget points at the wrong slug',

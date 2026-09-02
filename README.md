@@ -80,12 +80,38 @@ deploy. Without it Pages clears the domain each time the workflow publishes.
 
 ## Health statuses
 
-| status | meaning |
-| --- | --- |
-| `ok` | in the ring |
-| `site_unreachable` | fetch failed, non-2xx, or timed out |
-| `no_webring_embed` | site loaded but the embed URL is not on the page |
-| `slug_mismatch` | an embed URL is present but for a different slug |
+| status | in the ring? | meaning |
+| --- | --- | --- |
+| `ok` | yes | embedding the current domain |
+| `ok_legacy_url` | yes | embedding a domain listed in `previousSiteUrls` |
+| `site_unreachable` | no | fetch failed, non-2xx, or timed out |
+| `no_webring_embed` | no | site loaded but no embed URL is on the page |
+| `slug_mismatch` | no | an embed URL is present but for a different slug |
+
+## Changing the domain later
+
+Two separate things break, and only one is automatic.
+
+**Health checks: handled.** Add the old domain to `previousSiteUrls` in
+`config.json` and members still on it stay in the ring, reported as
+`ok_legacy_url` so you can see who has not moved yet. Without that entry every
+member flips to `no_webring_embed` the moment you change `siteUrl`.
+
+```json
+"siteUrl": "https://ring.newname.dev",
+"previousSiteUrls": ["https://ring.waisi.now"]
+```
+
+**The widget itself: needs the old domain to keep resolving.** Members' iframes
+point at the old URL, so if it stops answering they render blank no matter what
+this repo says. Keep the old domain registered and forward it, path intact, to
+the new one. Porkbun's URL forwarding does this for free, as do Cloudflare
+redirect rules.
+
+Note that GitHub Pages allows **one** custom domain per repository, so you
+cannot simply serve both domains from this site. The old one has to redirect.
+
+Only if you let the old domain lapse does everyone have to edit their site.
 
 ## Two Actions caveats worth knowing
 

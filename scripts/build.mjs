@@ -20,7 +20,10 @@ const status = await readStatus();
 const DIST = join(ROOT, 'dist');
 
 const healthOf = (slug) => status.results?.[slug]?.status ?? HEALTH.UNKNOWN;
-const ring = members.filter((m) => healthOf(m.slug) === HEALTH.OK);
+// A member on a previous domain is still in the ring; only truly broken ones
+// are routed around.
+const inRing = (s) => s === HEALTH.OK || s === HEALTH.OK_LEGACY;
+const ring = members.filter((m) => inRing(healthOf(m.slug)));
 
 /** Neighbours within the healthy ring. Falls back to all members if the ring
  *  is too small to navigate, so a fresh install still shows working links. */
@@ -114,7 +117,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
     ${link(next, 'next &rarr;')}
   </span>
 </nav>
-${health === HEALTH.OK ? '' : `<p class="warn">This site is not in the ring yet: ${escapeHtml(HEALTH_LABEL[health])}. Only you see this note.</p>`}
+${inRing(health) ? '' : `<p class="warn">This site is not in the ring yet: ${escapeHtml(HEALTH_LABEL[health])}. Only you see this note.</p>`}
 <script>
   // Colours and type can be overridden per-embed with query params, which is
   // how a member restyles the widget without editing their config.
@@ -166,7 +169,7 @@ function indexPage() {
     return `      <tr>
         <td><a href="${escapeHtml(m.url)}" rel="noopener">${escapeHtml(m.name)}</a></td>
         <td><code>${escapeHtml(m.slug)}</code></td>
-        <td class="st st--${h === HEALTH.OK ? 'ok' : 'bad'}">${escapeHtml(HEALTH_LABEL[h])}${detail ? ` <span class="detail">${escapeHtml(detail)}</span>` : ''}</td>
+        <td class="st st--${h === HEALTH.OK ? 'ok' : inRing(h) ? 'warn' : 'bad'}">${escapeHtml(HEALTH_LABEL[h])}${detail ? ` <span class="detail">${escapeHtml(detail)}</span>` : ''}</td>
       </tr>`;
   }).join('\n');
 
@@ -193,6 +196,7 @@ function indexPage() {
   th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 600; }
   .st--ok { color: var(--ok); }
+  .st--warn { color: var(--muted); }
   .st--bad { color: var(--bad); }
   .detail { color: var(--muted); }
   code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }

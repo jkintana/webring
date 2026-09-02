@@ -24,13 +24,23 @@ async function fetchText(url, timeoutMs) {
   }
 }
 
-function classify(body, member, embedBase) {
-  // Which embed URLs does the page reference at all?
-  const found = [...body.matchAll(new RegExp(`${escapeRe(embedBase)}/([a-z0-9-]+)`, 'g'))]
-    .map((m) => m[1]);
-  if (found.length === 0) return { status: HEALTH.NO_EMBED, detail: null };
-  if (found.includes(member.slug)) return { status: HEALTH.OK, detail: null };
-  return { status: HEALTH.SLUG_MISMATCH, detail: `found ${[...new Set(found)].join(', ')}` };
+function classify(body, member, embedBases) {
+  // Try the current domain first, then any the ring used to live at, so a
+  // domain move does not knock everyone out of the ring at once.
+  let sawSomeEmbed = null;
+  for (const [i, base] of embedBases.entries()) {
+    const found = [...body.matchAll(new RegExp(`${escapeRe(base)}/([a-z0-9-]+)`, 'g'))]
+      .map((m) => m[1]);
+    if (found.length === 0) continue;
+    if (found.includes(member.slug)) {
+      return i === 0
+        ? { status: HEALTH.OK, detail: null }
+        : { status: HEALTH.OK_LEGACY, detail: `still embedding ${base}` };
+    }
+    // Right domain, wrong slug. Remember it but keep looking at older bases.
+    sawSomeEmbed ??= { status: HEALTH.SLUG_MISMATCH, detail: `found ${[...new Set(found)].join(', ')}` };
+  }
+  return sawSomeEmbed ?? { status: HEALTH.NO_EMBED, detail: null };
 }
 
 function escapeRe(s) {
@@ -65,16 +75,23 @@ if (config.siteUrl.includes('REPLACE-ME')) {
 const checked = await mapLimit(members, config.healthcheck.concurrency, async (member) => {
   const { body, error } = await fetchText(member.url, config.healthcheck.timeoutMs);
   if (error) return [member.slug, { status: HEALTH.UNREACHABLE, detail: error }];
-  return [member.slug, classify(body, member, config.embedBase)];
+  return [member.slug, classify(body, member, config.embedBases)];
 });
 
 const results = Object.fromEntries(checked);
-const status = { checkedAt: new Date().toISOString(), embedBase: config.embedBase, results };
+const status = {
+  checkedAt: new Date().toISOString(),
+  embedBase: config.embedBase,
+  acceptedBases: config.embedBases,
+  results,
+};
 await writeFile(STATUS_PATH, JSON.stringify(status, null, 2) + '\n');
 
+const inRing = (s) => s === HEALTH.OK || s === HEALTH.OK_LEGACY;
 for (const [slug, r] of checked) {
   const changed = previous.results?.[slug]?.status !== r.status;
-  console.log(`${r.status === HEALTH.OK ? 'ok  ' : 'FAIL'} ${slug.padEnd(12)} ${r.status}${r.detail ? ` (${r.detail})` : ''}${changed ? '  [changed]' : ''}`);
+  const tag = r.status === HEALTH.OK ? 'ok  ' : inRing(r.status) ? 'old ' : 'FAIL';
+  console.log(`${tag} ${slug.padEnd(12)} ${r.status}${r.detail ? ` (${r.detail})` : ''}${changed ? '  [changed]' : ''}`);
 }
-const healthy = checked.filter(([, r]) => r.status === HEALTH.OK).length;
+const healthy = checked.filter(([, r]) => inRing(r.status)).length;
 console.log(`\n${healthy}/${members.length} in the ring -> ${STATUS_PATH}`);
