@@ -1,6 +1,10 @@
 {
   "name": "WAISI & co",
   "tagline": "a webring of friends who met at the Wisconsin AI Safety Initiative",
+  "taglineLink": {
+    "text": "Wisconsin AI Safety Initiative",
+    "url": "https://waisi.org"
+  },
   "siteUrl": "https://ring.waisi.live",
   "previousSiteUrls": [],
   "healthcheck": {

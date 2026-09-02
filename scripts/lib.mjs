@@ -2,6 +2,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 import { parse as parseYaml } from 'yaml';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -77,6 +78,25 @@ export const HEALTH_LABEL = {
   [HEALTH.SLUG_MISMATCH]: 'widget points at the wrong slug',
   [HEALTH.UNKNOWN]: 'not checked yet',
 };
+
+/** The UTC calendar day, as YYYY-MM-DD. The seed for the daily shuffle. */
+export function utcDayKey(date = new Date()) {
+  return date.toISOString().slice(0, 10);
+}
+
+/**
+ * Ring order for a given day. Same trick as kognise/overengineering: sort by a
+ * hash of (slug, date), which is arbitrary but completely deterministic, so
+ * every rebuild within the same UTC day produces an identical ring and the
+ * order reshuffles at midnight. Members keep their slug-sorted order elsewhere
+ * so diffs and health output stay readable.
+ */
+export function ringOrder(members, dayKey = utcDayKey()) {
+  const rank = new Map(
+    members.map((m) => [m.slug, createHash('sha256').update(`${m.slug}:${dayKey}`).digest('hex')])
+  );
+  return [...members].sort((a, b) => rank.get(a.slug).localeCompare(rank.get(b.slug)));
+}
 
 export function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => (

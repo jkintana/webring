@@ -12,7 +12,7 @@
 import { mkdir, writeFile, copyFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { ROOT, readConfig, readMembers, readStatus, HEALTH, HEALTH_LABEL, escapeHtml } from './lib.mjs';
+import { ROOT, readConfig, readMembers, readStatus, ringOrder, utcDayKey, HEALTH, HEALTH_LABEL, escapeHtml } from './lib.mjs';
 
 const config = await readConfig();
 const members = await readMembers();
@@ -23,12 +23,14 @@ const healthOf = (slug) => status.results?.[slug]?.status ?? HEALTH.UNKNOWN;
 // A member on a previous domain is still in the ring; only truly broken ones
 // are routed around.
 const inRing = (s) => s === HEALTH.OK || s === HEALTH.OK_LEGACY;
-const ring = members.filter((m) => inRing(healthOf(m.slug)));
+const dayKey = utcDayKey();
+const ordered = ringOrder(members, dayKey);
+const ring = ordered.filter((m) => inRing(healthOf(m.slug)));
 
 /** Neighbours within the healthy ring. Falls back to all members if the ring
  *  is too small to navigate, so a fresh install still shows working links. */
 function neighbours(member) {
-  const pool = ring.length >= 2 ? ring : members;
+  const pool = ring.length >= 2 ? ring : ordered;
   if (pool.length === 0) return { prev: null, next: null };
   const i = pool.findIndex((m) => m.slug === member.slug);
   if (i === -1) {
@@ -79,18 +81,19 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
     line-height: 1.4;
   }
   .ring {
-    display: flex;
+    /* 1fr auto 1fr keeps the middle group optically centred even when "prev"
+       and "next" are different widths, which space-between would not do. */
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
     gap: 0.75rem;
     padding: 0.6rem 0.75rem;
     border: 1px solid var(--border);
     border-radius: 0.4rem;
   }
-  .ring__label { font-weight: 600; white-space: nowrap; }
-  .ring__label a { color: inherit; text-decoration: none; }
-  .ring__label a:hover, .ring__label a:focus-visible { text-decoration: underline; }
-  .ring__nav { display: flex; align-items: center; gap: 0.75rem; }
+  .ring__start { justify-self: start; }
+  .ring__mid { justify-self: center; display: flex; align-items: center; gap: 0.75rem; }
+  .ring__end { justify-self: end; }
   .nav { color: var(--link); text-decoration: none; font-weight: 600; white-space: nowrap; }
   .nav:hover, .nav:focus-visible { text-decoration: underline; }
   .nav--empty { opacity: 0.45; font-weight: 400; }
@@ -102,20 +105,20 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
     border-radius: 0.3rem;
     opacity: 0.8;
   }
-  @media (max-width: 460px) {
-    .ring { flex-direction: column; align-items: stretch; text-align: center; }
-    .ring__nav { justify-content: space-between; }
+  @media (max-width: 400px) {
+    .ring { gap: 0.4rem; padding: 0.6rem 0.5rem; }
+    .ring__mid { gap: 0.5rem; }
   }
 </style>
 </head>
 <body>
 <nav class="ring" aria-label="${escapeHtml(config.name)} webring">
-  <span class="ring__label"><a href="${escapeHtml(config.siteUrl)}" target="_top" rel="noopener">${escapeHtml(config.name)}</a></span>
-  <span class="ring__nav">
-    ${link(prev, '&larr; prev')}
+  <span class="ring__start">${link(prev, '&larr; prev')}</span>
+  <span class="ring__mid">
     <a class="nav" href="${escapeHtml(randomTarget)}" target="_top" rel="noopener">random</a>
-    ${link(next, 'next &rarr;')}
+    <a class="nav" href="${escapeHtml(config.siteUrl)}" target="_top" rel="noopener">list</a>
   </span>
+  <span class="ring__end">${link(next, 'next &rarr;')}</span>
 </nav>
 ${inRing(health) ? '' : `<p class="warn">This site is not in the ring yet: ${escapeHtml(HEALTH_LABEL[health])}. Only you see this note.</p>`}
 <script>
@@ -142,7 +145,7 @@ ${inRing(health) ? '' : `<p class="warn">This site is not in the ring yet: ${esc
 }
 
 function randomPage() {
-  const pool = (ring.length ? ring : members).map((m) => m.url);
+  const pool = (ring.length ? ring : ordered).map((m) => m.url);
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -159,11 +162,27 @@ function randomPage() {
 `;
 }
 
+/** Tagline with one phrase optionally turned into a link. The tagline is
+ *  escaped first, so this never allows arbitrary HTML in from config. */
+function taglineHtml() {
+  let html = escapeHtml(config.tagline);
+  const l = config.taglineLink;
+  if (l?.text && l?.url) {
+    const needle = escapeHtml(l.text);
+    if (html.includes(needle)) {
+      html = html.replace(needle, `<a href="${escapeHtml(l.url)}" rel="noopener">${needle}</a>`);
+    } else {
+      console.warn(`config.taglineLink.text "${l.text}" is not in the tagline; left unlinked.`);
+    }
+  }
+  return html;
+}
+
 function indexPage() {
   const checked = status.checkedAt
     ? `Last checked ${escapeHtml(status.checkedAt.replace('T', ' ').replace(/\..+/, ' UTC'))}`
     : 'Not checked yet';
-  const rows = members.map((m) => {
+  const rows = ordered.map((m) => {
     const h = healthOf(m.slug);
     const detail = status.results?.[m.slug]?.detail;
     return `      <tr>
@@ -206,7 +225,7 @@ function indexPage() {
 </head>
 <body>
   <h1>${escapeHtml(config.name)}</h1>
-  <p class="tagline">${escapeHtml(config.tagline)}</p>
+  <p class="tagline">${taglineHtml()}</p>
 
   <h2>Members</h2>
   <table>
@@ -215,7 +234,8 @@ function indexPage() {
 ${rows}
     </tbody>
   </table>
-  <p><small>${checked}. <a href="/status.json">status.json</a></small></p>
+  <p><small>Listed in today's ring order, which is shuffled daily.
+     ${checked}. <a href="/status.json">status.json</a></small></p>
 
   <h2>Joining</h2>
   <p>Open a pull request adding <code>members/&lt;your-slug&gt;.yaml</code> with your

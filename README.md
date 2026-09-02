@@ -7,6 +7,12 @@ widget, and the ring routes around anyone who is down.
 Static output, no server. Health checks run in GitHub Actions and are committed
 as `data/status.json`, which the build reads.
 
+The ring order reshuffles daily, sorted by a hash of (slug, UTC date) the same
+way `kognise/overengineering` does it: arbitrary but deterministic, so every
+rebuild within a day agrees on the order. Because this is a static build the new
+order appears at the first CI run after UTC midnight rather than exactly at
+midnight, so it can lag by up to the cron interval.
+
 ## Joining
 
 1. Open a PR adding `members/<your-slug>.yaml`:
