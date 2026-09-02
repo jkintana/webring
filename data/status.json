@@ -1,5 +1,21 @@
 {
-  "checkedAt": null,
-  "embedBase": null,
-  "results": {}
+  "checkedAt": "2026-09-02T20:36:47.695Z",
+  "embedBase": "https://ring.waisi.live/embed",
+  "acceptedBases": [
+    "https://ring.waisi.live/embed"
+  ],
+  "results": {
+    "celeste": {
+      "status": "no_webring_embed",
+      "detail": null
+    },
+    "jeremy": {
+      "status": "no_webring_embed",
+      "detail": null
+    },
+    "will": {
+      "status": "no_webring_embed",
+      "detail": null
+    }
+  }
 }
