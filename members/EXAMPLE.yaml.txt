@@ -1,0 +1,19 @@
+# Copy this to members/<your-slug>.yaml and delete this comment block.
+# The filename (minus .yaml) is your slug. Keep it short and lowercase.
+#
+# Only `name` and `url` are required.
+
+name: Your Name
+url: https://your-site.example
+
+# Everything below is optional. Omit anything you don't care about and the
+# widget falls back to a neutral default that inherits your page's font.
+#
+# text_color: "#111111"
+# border_color: "#111111"
+# link_color: "#0055cc"
+# on_link_color: "#ffffff"
+# background: "transparent"
+# font: "Inter, system-ui, sans-serif"
+# font_size: "15px"
+# stylesheet: "https://fonts.googleapis.com/css2?family=Inter&display=swap"

@@ -1,0 +1,9 @@
+{
+  "name": "TBD",
+  "tagline": "a small ring of friends' websites",
+  "siteUrl": "https://REPLACE-ME.example",
+  "healthcheck": {
+    "timeoutMs": 8000,
+    "concurrency": 4
+  }
+}

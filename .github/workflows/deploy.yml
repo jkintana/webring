@@ -1,0 +1,73 @@
+# One workflow does everything: health-check the members, commit the result,
+# build the static site, publish it to Pages.
+#
+# Deliberately not split into two workflows. A commit pushed with GITHUB_TOKEN
+# does not trigger other workflows, so a separate "deploy on push" job would
+# never see the health-check's commit and the published health would go stale.
+name: Check and deploy
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Hourly at :37. Not on the hour: GitHub warns that scheduled runs are
+    # delayed or dropped under load, and the top of the hour is the worst of it.
+    # Change to '37 6 * * *' for once a day.
+    - cron: '37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write   # to commit data/status.json
+  pages: write
+  id-token: write
+
+# Never let two runs publish at once, but let a running one finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Health-check members
+        run: npm run healthcheck
+
+      - name: Commit status if it changed
+        run: |
+          if git diff --quiet -- data/status.json; then
+            echo "No health change; nothing to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/status.json
+          git commit -m "chore: update member health [skip ci]"
+          git push
+
+      - name: Build
+        run: npm run build
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
