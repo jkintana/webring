@@ -1,2 +1,8 @@
 name: Jeremy Kintana
 url: https://jeremykintana.com
+link_color: "#FF6400"
+text_color: "#000000"
+border_style: none
+font: "Inter, system-ui, sans-serif"
+font_size: "16px"
+stylesheet: "https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap"

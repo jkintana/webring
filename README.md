@@ -28,7 +28,7 @@ midnight, so it can lag by up to the cron interval.
 2. Once merged, add this to your site's footer:
 
    ```html
-   <iframe src="https://ring.waisi.live/embed/<your-slug>"
+   <iframe src="https://waisi.live/embed/<your-slug>"
            title="webring"
            style="width:100%;height:56px;border:0"
            loading="lazy"></iframe>
@@ -69,13 +69,15 @@ match until the domain is real.
 
 ## Setup checklist
 
-- [x] Name and domain: `WAISI & co` at `ring.waisi.live`
+- [x] Name and domain: `waisi.live` (apex, not the subdomain)
 - [ ] Push to GitHub as a **public** repo (Actions minutes are free and
       unlimited there; a private repo would burn its 2,000 monthly minutes)
 - [ ] Settings → Pages → Source: **GitHub Actions**
-- [ ] Settings → Pages → Custom domain: `ring.waisi.live`, Save
-- [ ] In Squarespace Domains → `waisi.live` → DNS Settings, add a record:
-      type `CNAME`, host `ring`, data `jkintana.github.io`
+- [ ] Settings → Pages → Custom domain: `waisi.live`, Save
+- [ ] In Squarespace Domains → `waisi.live` → DNS Settings, replace the apex
+      `A` records (currently Squarespace's) with GitHub's four:
+      `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`.
+      An apex cannot be a CNAME, which is why this differs from a subdomain.
 - [ ] Wait for GitHub's DNS check to pass, then tick **Enforce HTTPS**
       (can take up to 24h to become available)
 - [ ] Push once and confirm the workflow deploys

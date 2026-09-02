@@ -1,5 +1,5 @@
 {
-  "name": "WAISI & co",
+  "name": "waisi.live",
   "tagline": "A webring of friends who met at the Wisconsin AI Safety Initiative.",
   "taglineLinks": [
     {
@@ -11,9 +11,11 @@
       "url": "https://waisi.org"
     }
   ],
-  "invite": "If you're not from WAISI, but know some of us and have a cool personal site, ask one of us if you can join in!",
-  "siteUrl": "https://ring.waisi.live",
-  "previousSiteUrls": [],
+  "invite": "If you know one of us and want to join in, just ask!",
+  "siteUrl": "https://waisi.live",
+  "previousSiteUrls": [
+    "https://ring.waisi.live"
+  ],
   "healthcheck": {
     "timeoutMs": 8000,
     "concurrency": 4

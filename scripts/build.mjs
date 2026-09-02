@@ -46,6 +46,7 @@ function neighbours(member) {
 const cssVars = (m) => [
   ['--text', m.text_color ?? '#1a1a1a'],
   ['--border', m.border_color ?? 'currentColor'],
+  ['--border-style', m.border_style ?? 'solid'],
   ['--link', m.link_color ?? '#0055cc'],
   ['--on-link', m.on_link_color ?? '#ffffff'],
   ['--bg', m.background ?? 'transparent'],
@@ -88,7 +89,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
     align-items: center;
     gap: 0.75rem;
     padding: 0.6rem 0.75rem;
-    border: 1px solid var(--border);
+    border: 1px var(--border-style) var(--border);
     border-radius: 0.4rem;
   }
   .ring__start { justify-self: start; }
@@ -97,6 +98,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
   .nav { color: var(--link); text-decoration: none; font-weight: 600; white-space: nowrap; }
   .nav:hover, .nav:focus-visible { text-decoration: underline; }
   .nav--empty { opacity: 0.45; font-weight: 400; }
+  .ring__name { font-weight: 600; white-space: nowrap; }
   .warn {
     margin-top: 0.4rem;
     padding: 0.4rem 0.75rem;
@@ -116,6 +118,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
   <span class="ring__start">${link(prev, '&larr; prev')}</span>
   <span class="ring__mid">
     <a class="nav" href="${escapeHtml(randomTarget)}" target="_top" rel="noopener">random</a>
+    <span class="ring__name">${escapeHtml(config.name)}</span>
     <a class="nav" href="${escapeHtml(config.siteUrl)}" target="_top" rel="noopener">list</a>
   </span>
   <span class="ring__end">${link(next, 'next &rarr;')}</span>
@@ -226,7 +229,7 @@ ${rows.map((m) => memberRow(m, withStatus)).join('\n')}
          font: 16px/1.6 system-ui, -apple-system, sans-serif; }
   h1 { font-size: 2rem; margin: 0 0 0.75rem; }
   h2 { font-size: 1.1rem; margin: 2.5rem 0 0.75rem; }
-  p.tagline { margin: 0 0 0.75rem; }
+  p.tagline { margin: 0 0 2rem; }
   p.invite { color: var(--muted); margin: 0 0 2rem; }
   a { color: var(--link); }
   table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
@@ -238,8 +241,7 @@ ${rows.map((m) => memberRow(m, withStatus)).join('\n')}
 </head>
 <body>
   <h1>${escapeHtml(config.name)}</h1>
-  <p class="tagline">${taglineHtml()}</p>
-  <p class="invite">${escapeHtml(config.invite ?? '')}</p>
+  <p class="tagline">${taglineHtml()}${config.invite ? ` ${escapeHtml(config.invite)}` : ''}</p>
 
   <h2>Members</h2>
 ${active.length ? table(active, false) : '  <p class="invite">Nobody has the widget installed yet.</p>'}

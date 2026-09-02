@@ -40,6 +40,7 @@ export async function readMembers() {
       url: String(raw.url).replace(/\/+$/, ''),
       text_color: raw.text_color ?? null,
       border_color: raw.border_color ?? null,
+      border_style: raw.border_style ?? null,
       link_color: raw.link_color ?? null,
       on_link_color: raw.on_link_color ?? null,
       background: raw.background ?? null,
@@ -74,7 +75,7 @@ export const HEALTH_LABEL = {
   [HEALTH.OK]: 'in the ring',
   [HEALTH.OK_LEGACY]: 'in the ring, on an old URL',
   [HEALTH.UNREACHABLE]: 'site unreachable',
-  [HEALTH.NO_EMBED]: 'widget not found on page',
+  [HEALTH.NO_EMBED]: 'not found on page',
   [HEALTH.SLUG_MISMATCH]: 'widget points at the wrong slug',
   [HEALTH.UNKNOWN]: 'not checked yet',
 };
