@@ -164,33 +164,50 @@ function randomPage() {
 
 /** Tagline with one phrase optionally turned into a link. The tagline is
  *  escaped first, so this never allows arbitrary HTML in from config. */
+/** Tagline with chosen phrases turned into links. The tagline is escaped first,
+ *  so this never allows arbitrary HTML in from config. */
 function taglineHtml() {
   let html = escapeHtml(config.tagline);
-  const l = config.taglineLink;
-  if (l?.text && l?.url) {
+  for (const l of config.taglineLinks ?? []) {
+    if (!l?.text || !l?.url) continue;
     const needle = escapeHtml(l.text);
-    if (html.includes(needle)) {
-      html = html.replace(needle, `<a href="${escapeHtml(l.url)}" rel="noopener">${needle}</a>`);
-    } else {
-      console.warn(`config.taglineLink.text "${l.text}" is not in the tagline; left unlinked.`);
+    if (!html.includes(needle)) {
+      console.warn(`config.taglineLinks: "${l.text}" is not in the tagline; left unlinked.`);
+      continue;
     }
+    html = html.replace(needle, `<a href="${escapeHtml(l.url)}" rel="noopener">${needle}</a>`);
   }
   return html;
+}
+
+const displayUrl = (url) => url.replace(/^https?:\/\//, '');
+
+/** A table row. The status column only appears in the inactive table. */
+function memberRow(m, withStatus) {
+  const h = healthOf(m.slug);
+  const detail = status.results?.[m.slug]?.detail;
+  const statusCell = withStatus
+    ? `\n        <td class="st">${escapeHtml(HEALTH_LABEL[h])}${detail ? ` <span class="detail">${escapeHtml(detail)}</span>` : ''}</td>`
+    : '';
+  return `      <tr>
+        <td><a href="${escapeHtml(m.url)}" rel="noopener">${escapeHtml(m.slug)}</a></td>
+        <td class="site">${escapeHtml(displayUrl(m.url))}</td>${statusCell}
+      </tr>`;
 }
 
 function indexPage() {
   const checked = status.checkedAt
     ? `Last checked ${escapeHtml(status.checkedAt.replace('T', ' ').replace(/\..+/, ' UTC'))}`
     : 'Not checked yet';
-  const rows = ordered.map((m) => {
-    const h = healthOf(m.slug);
-    const detail = status.results?.[m.slug]?.detail;
-    return `      <tr>
-        <td><a href="${escapeHtml(m.url)}" rel="noopener">${escapeHtml(m.name)}</a></td>
-        <td><code>${escapeHtml(m.slug)}</code></td>
-        <td class="st st--${h === HEALTH.OK ? 'ok' : inRing(h) ? 'warn' : 'bad'}">${escapeHtml(HEALTH_LABEL[h])}${detail ? ` <span class="detail">${escapeHtml(detail)}</span>` : ''}</td>
-      </tr>`;
-  }).join('\n');
+  const active = ordered.filter((m) => inRing(healthOf(m.slug)));
+  const inactive = ordered.filter((m) => !inRing(healthOf(m.slug)));
+
+  const table = (rows, withStatus) => `  <table>
+    <thead><tr><th>Member</th><th>Site</th>${withStatus ? '<th>Status</th>' : ''}</tr></thead>
+    <tbody>
+${rows.map((m) => memberRow(m, withStatus)).join('\n')}
+    </tbody>
+  </table>`;
 
   return `<!doctype html>
 <html lang="en">
@@ -200,54 +217,36 @@ function indexPage() {
 <title>${escapeHtml(config.name)}</title>
 <meta name="description" content="${escapeHtml(config.tagline)}">
 <style>
-  :root { color-scheme: light dark; --fg: #16181d; --bg: #fdfdfc; --muted: #5d6470; --line: #d8d8d4; --ok: #1c6b3a; --bad: #9a3412; --link: #0b57c7; }
+  :root { color-scheme: light dark; --fg: #16181d; --bg: #fdfdfc; --muted: #5d6470; --line: #d8d8d4; --link: #0b57c7; }
   @media (prefers-color-scheme: dark) {
-    :root { --fg: #e8e8e6; --bg: #16181a; --muted: #9aa1ac; --line: #34383d; --ok: #6fcf97; --bad: #f0a37e; --link: #7fb2ff; }
+    :root { --fg: #e8e8e6; --bg: #16181a; --muted: #9aa1ac; --line: #34383d; --link: #7fb2ff; }
   }
   * { box-sizing: border-box; }
   body { margin: 0 auto; max-width: 68ch; padding: 3rem 1.5rem 4rem; background: var(--bg); color: var(--fg);
          font: 16px/1.6 system-ui, -apple-system, sans-serif; }
-  h1 { font-size: 2rem; margin: 0 0 0.25rem; }
+  h1 { font-size: 2rem; margin: 0 0 0.75rem; }
   h2 { font-size: 1.1rem; margin: 2.5rem 0 0.75rem; }
-  p.tagline { color: var(--muted); margin: 0 0 2rem; }
+  p.tagline { margin: 0 0 0.75rem; }
+  p.invite { color: var(--muted); margin: 0 0 2rem; }
   a { color: var(--link); }
   table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
   th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 600; }
-  .st--ok { color: var(--ok); }
-  .st--warn { color: var(--muted); }
-  .st--bad { color: var(--bad); }
-  .detail { color: var(--muted); }
-  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
-  pre { overflow-x: auto; padding: 0.9rem 1rem; border: 1px solid var(--line); border-radius: 0.4rem; background: color-mix(in srgb, var(--fg) 4%, transparent); }
-  footer { margin-top: 3rem; color: var(--muted); font-size: 0.9rem; }
+  .site, .st, .detail { color: var(--muted); }
+  p.meta { color: var(--muted); font-size: 0.9rem; margin-top: 0.9rem; }
 </style>
 </head>
 <body>
   <h1>${escapeHtml(config.name)}</h1>
   <p class="tagline">${taglineHtml()}</p>
+  <p class="invite">${escapeHtml(config.invite ?? '')}</p>
 
   <h2>Members</h2>
-  <table>
-    <thead><tr><th>Site</th><th>Slug</th><th>Status</th></tr></thead>
-    <tbody>
-${rows}
-    </tbody>
-  </table>
-  <p><small>Listed in today's ring order, which is shuffled daily.
-     ${checked}. <a href="/status.json">status.json</a></small></p>
-
-  <h2>Joining</h2>
-  <p>Open a pull request adding <code>members/&lt;your-slug&gt;.yaml</code> with your
-     name and URL, then drop this into your site's footer:</p>
-  <pre><code>&lt;iframe src="${escapeHtml(config.embedBase)}/&lt;your-slug&gt;"
-        title="${escapeHtml(config.name)} webring"
-        style="width:100%;height:56px;border:0"
-        loading="lazy"&gt;&lt;/iframe&gt;</code></pre>
-  <p>A checker visits every member hourly and looks for that URL on the page. Until
-     it finds yours you will show as pending above, and the ring will route around you.</p>
-
-  <footer>Built from <code>members/</code>. Health data refreshed on a schedule.</footer>
+${active.length ? table(active, false) : '  <p class="invite">Nobody has the widget installed yet.</p>'}
+  <p class="meta">Ring order is shuffled daily. ${checked} (<a href="/status.json">status.json</a>).</p>
+${inactive.length ? `
+  <h2>Inactive</h2>
+${table(inactive, true)}` : ''}
 </body>
 </html>
 `;
