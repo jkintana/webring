@@ -1,7 +1,7 @@
 {
-  "name": "TBD",
-  "tagline": "a small ring of friends' websites",
-  "siteUrl": "https://REPLACE-ME.example",
+  "name": "WAISI & co",
+  "tagline": "a webring of friends who met at the Wisconsin AI Safety Initiative",
+  "siteUrl": "https://ring.waisi.now",
   "healthcheck": {
     "timeoutMs": 8000,
     "concurrency": 4

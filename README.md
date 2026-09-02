@@ -22,7 +22,7 @@ as `data/status.json`, which the build reads.
 2. Once merged, add this to your site's footer:
 
    ```html
-   <iframe src="https://REPLACE-ME.example/embed/<your-slug>"
+   <iframe src="https://ring.waisi.now/embed/<your-slug>"
            title="webring"
            style="width:100%;height:56px;border:0"
            loading="lazy"></iframe>
@@ -63,16 +63,20 @@ match until the domain is real.
 
 ## Setup checklist
 
-- [ ] Pick a name; set `name` and `tagline` in `config.json`
-- [ ] Buy the domain; set `siteUrl` in `config.json` and the iframe URL above
+- [x] Name and domain: `WAISI & co` at `ring.waisi.now`
 - [ ] Push to GitHub as a **public** repo (Actions minutes are free and
       unlimited there; a private repo would burn its 2,000 monthly minutes)
 - [ ] Settings → Pages → Source: **GitHub Actions**
-- [ ] Settings → Pages → Custom domain: your domain, then add the DNS records
-      GitHub shows you
+- [ ] At Porkbun, add a DNS record: type `CNAME`, host `ring`,
+      answer `<your-github-username>.github.io`
+- [ ] Settings → Pages → Custom domain: `ring.waisi.now`, then wait for the
+      DNS check to pass and tick **Enforce HTTPS**
 - [ ] Push once and confirm the workflow deploys
 - [ ] Add the iframe to your own site first, so there is one healthy member
 - [ ] Send everyone else their snippet
+
+`dist/CNAME` is generated from `siteUrl`, so the custom domain survives every
+deploy. Without it Pages clears the domain each time the workflow publishes.
 
 ## Health statuses
 

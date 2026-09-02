@@ -243,6 +243,9 @@ if (existsSync(join(ROOT, 'data', 'status.json'))) {
 }
 // GitHub Pages would otherwise run everything through Jekyll.
 await writeFile(join(DIST, '.nojekyll'), '');
+// Pages reads the custom domain from this file on every deploy; without it the
+// domain set in the UI gets cleared each time the workflow publishes.
+await writeFile(join(DIST, 'CNAME'), `${config.siteUrl.replace(/^https?:\/\//, '')}\n`);
 
 console.log(`built ${members.length} embed page(s); ${ring.length} in the ring`);
 if (config.siteUrl.includes('REPLACE-ME')) {
