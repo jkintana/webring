@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-02T20:48:56.663Z",
+  "checkedAt": "2026-09-02T21:01:50.243Z",
   "embedBase": "https://ring.waisi.live/embed",
   "acceptedBases": [
     "https://ring.waisi.live/embed"
@@ -10,6 +10,10 @@
       "detail": null
     },
     "jeremy": {
+      "status": "no_webring_embed",
+      "detail": null
+    },
+    "kaustubh": {
       "status": "no_webring_embed",
       "detail": null
     },
