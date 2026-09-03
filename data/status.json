@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-03T02:26:02.202Z",
+  "checkedAt": "2026-09-03T02:47:37.462Z",
   "embedBase": "https://waisi.live/embed",
   "acceptedBases": [
     "https://waisi.live/embed"
@@ -22,7 +22,7 @@
       "detail": null
     },
     "kaustubh": {
-      "status": "no_webring_embed",
+      "status": "ok",
       "detail": null
     },
     "sam": {
