@@ -196,7 +196,7 @@ function memberRow(m, withStatus) {
     ? `\n        <td class="st">${escapeHtml(HEALTH_LABEL[h])}${detail ? ` <span class="detail">${escapeHtml(detail)}</span>` : ''}</td>`
     : '';
   return `      <tr>
-        <td><a href="${escapeHtml(m.url)}" rel="noopener">${escapeHtml(m.slug)}</a></td>
+        <td><a href="${escapeHtml(m.url)}" rel="noopener">${escapeHtml(m.name)}</a></td>
         <td class="site">${escapeHtml(displayUrl(m.url))}</td>${statusCell}
       </tr>`;
 }
@@ -246,7 +246,7 @@ ${rows.map((m) => memberRow(m, withStatus)).join('\n')}
   <h1>${escapeHtml(config.name)}</h1>
   <p class="tagline">${taglineHtml()}${config.invite ? ` ${escapeHtml(config.invite)}` : ''}</p>
 
-  <h2>Members</h2>
+  <h2>Active</h2>
 ${active.length ? table(active, false) : '  <p class="invite">Nobody has the widget installed yet.</p>'}
   <p class="meta">Ring order is shuffled daily. ${checked} (<a href="/status.json">status.json</a>).</p>
 ${inactive.length ? `
