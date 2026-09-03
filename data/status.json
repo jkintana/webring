@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-03T01:25:46.624Z",
+  "checkedAt": "2026-09-03T01:54:46.163Z",
   "embedBase": "https://waisi.live/embed",
   "acceptedBases": [
     "https://waisi.live/embed"
@@ -9,12 +9,16 @@
       "status": "no_webring_embed",
       "detail": null
     },
+    "andy": {
+      "status": "no_webring_embed",
+      "detail": null
+    },
     "celeste": {
       "status": "no_webring_embed",
       "detail": null
     },
     "jeremy": {
-      "status": "no_webring_embed",
+      "status": "ok",
       "detail": null
     },
     "kaustubh": {
