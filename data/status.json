@@ -1,9 +1,8 @@
 {
-  "checkedAt": "2026-09-03T00:00:20.753Z",
+  "checkedAt": "2026-09-03T00:01:49.190Z",
   "embedBase": "https://waisi.live/embed",
   "acceptedBases": [
-    "https://waisi.live/embed",
-    "https://ring.waisi.live/embed"
+    "https://waisi.live/embed"
   ],
   "results": {
     "celeste": {
