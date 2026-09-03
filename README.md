@@ -74,10 +74,11 @@ selector you write will touch the bar. You have three options:
    stylesheet: "https://fonts.googleapis.com/css2?family=Inter&display=swap"
    ```
 
-2. Query params on the iframe `src`, same names, overriding per embed:
+2. Query params on the iframe `src`, overriding per embed. Every styling field
+   above works here except `stylesheet`, which stays YAML-only:
 
    ```
-   /embed/you?link_color=%23FF6400&font=Inter,sans-serif
+   /embed/you?link_color=%23FF6400&border_style=none&font=Inter,sans-serif
    ```
 
    Values containing `;`, `{`, `}`, `<` or `>` are ignored, so a param cannot

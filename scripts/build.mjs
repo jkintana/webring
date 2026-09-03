@@ -58,16 +58,26 @@ function collapse(n) {
   return n;
 }
 
-const cssVars = (m) => [
-  ['--text', m.text_color ?? '#1a1a1a'],
-  ['--border', m.border_color ?? 'currentColor'],
-  ['--border-style', m.border_style ?? 'solid'],
-  ['--link', m.link_color ?? '#0055cc'],
-  ['--on-link', m.on_link_color ?? '#ffffff'],
-  ['--bg', m.background ?? 'transparent'],
-  ['--font', m.font ?? 'system-ui, sans-serif'],
-  ['--font-size', m.font_size ?? '15px'],
-].map(([k, v]) => `${k}: ${v};`).join(' ');
+/**
+ * The themeable fields, in one place. Both paths read from this: the YAML
+ * values baked into the page, and the query-param overrides applied at
+ * runtime. They used to be two hand-kept lists and drifted, which is how
+ * border_style ended up working in YAML and silently doing nothing as a
+ * query param.
+ */
+const THEME = [
+  ['text_color', '--text', '#1a1a1a'],
+  ['border_color', '--border', 'currentColor'],
+  ['border_style', '--border-style', 'solid'],
+  ['link_color', '--link', '#0055cc'],
+  ['on_link_color', '--on-link', '#ffffff'],
+  ['background', '--bg', 'transparent'],
+  ['font', '--font', 'system-ui, sans-serif'],
+  ['font_size', '--font-size', '15px'],
+];
+
+const cssVars = (m) =>
+  THEME.map(([field, cssVar, fallback]) => `${cssVar}: ${m[field] ?? fallback};`).join(' ');
 
 function embedPage(member) {
   const { prev, next } = neighbours(member);
@@ -138,10 +148,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
   // Colours and type can be overridden per-embed with query params, which is
   // how a member restyles the widget without editing their config.
   (function () {
-    var allowed = {
-      text_color: '--text', border_color: '--border', link_color: '--link',
-      on_link_color: '--on-link', background: '--bg', font: '--font', font_size: '--font-size'
-    };
+    var allowed = ${JSON.stringify(Object.fromEntries(THEME.map(([f, v]) => [f, v])))};
     var params = new URLSearchParams(location.search);
     Object.keys(allowed).forEach(function (key) {
       var value = params.get(key);
