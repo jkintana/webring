@@ -204,6 +204,28 @@ function linkify(text) {
 }
 
 const displayUrl = (url) => url.replace(/^https?:\/\//, '');
+const firstName = (m) => m.name.split(/\s+/)[0];
+
+/**
+ * Cloudflare Web Analytics, on the ring's own pages only.
+ *
+ * Deliberately NOT on the embed pages: those render inside other members'
+ * sites, so a beacon there would measure their visitors without their say.
+ *
+ * Skipped unless CI is building, so local previews stay out of the numbers.
+ */
+function analyticsTag() {
+  const token = config.analytics?.cloudflareToken;
+  if (!token || !process.env.CI) return '';
+  // Beacon tokens are hex. Validating rather than escaping keeps the tag
+  // byte-identical to the snippet Cloudflare hands you.
+  if (!/^[A-Za-z0-9_-]+$/.test(token)) {
+    console.warn(`config.analytics.cloudflareToken looks wrong; skipping the tag.`);
+    return '';
+  }
+  return `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" `
+    + `data-cf-beacon='{"token": "${token}"}'></script>`;
+}
 
 /** A table row. The status column only appears in the inactive table. */
 function memberRow(m, withStatus) {
@@ -213,7 +235,7 @@ function memberRow(m, withStatus) {
     ? `\n        <td class="st">${escapeHtml(HEALTH_LABEL[h])}${detail ? ` <span class="detail">(${escapeHtml(detail)})</span>` : ''}</td>`
     : '';
   return `      <tr>
-        <td><a href="${escapeHtml(m.url)}" rel="noopener">${escapeHtml(m.name)}</a></td>
+        <td><a href="${escapeHtml(m.url)}" rel="noopener" title="${escapeHtml(m.name)}">${escapeHtml(firstName(m))}</a></td>
         <td class="site">${escapeHtml(displayUrl(m.url))}</td>${statusCell}
       </tr>`;
 }
@@ -243,6 +265,7 @@ ${rows.map((m) => memberRow(m, withStatus)).join('\n')}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(config.name)}</title>
 <meta name="description" content="${escapeHtml([config.tagline, config.credit].filter(Boolean).join(' '))}">
+${analyticsTag()}
 <style>
   :root { color-scheme: light dark; --fg: #16181d; --bg: #fdfdfc; --muted: #5d6470; --line: #d8d8d4; --link: #0b57c7; }
   @media (prefers-color-scheme: dark) {
@@ -258,6 +281,9 @@ ${rows.map((m) => memberRow(m, withStatus)).join('\n')}
   a { color: var(--link); }
   table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
   th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  /* flush with the headings and the body copy, and full width */
+  th:first-child, td:first-child { padding-left: 0; }
+  th:last-child, td:last-child { padding-right: 0; }
   th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 600; }
   .site, .st, .detail { color: var(--muted); }
   p.meta { color: var(--muted); font-size: 0.9rem; margin-top: 0.9rem; }
