@@ -63,14 +63,10 @@ function embedPage(member) {
   const link = (m, dir) => {
     const arrow = dir === 'prev' ? '&larr;' : '&rarr;';
     if (!m) return `<span class="nav nav--empty">${dir === 'prev' ? `${arrow} prev` : `next ${arrow}`}</span>`;
-    // Full names overflow a phone (404px of content into 351px), so ship both
-    // and let CSS pick. First word only is enough to know where you are going.
-    const full = escapeHtml(m.name);
-    const short = escapeHtml(m.name.split(/\s+/)[0]);
-    const nm = full === short
-      ? `<span class="nm">${full}</span>`
-      : `<span class="nm nm--full">${full}</span><span class="nm nm--short">${short}</span>`;
-    const label = dir === 'prev' ? `${arrow} ${nm}` : `${nm} ${arrow}`;
+    // First name only. Full names ran to 404px of content, which overflows a
+    // 375px phone; the full name still rides along in the title.
+    const first = escapeHtml(m.name.split(/\s+/)[0]);
+    const label = dir === 'prev' ? `${arrow} ${first}` : `${first} ${arrow}`;
     const title = dir === 'prev' ? `Previous site: ${m.name}` : `Next site: ${m.name}`;
     return `<a class="nav" href="${escapeHtml(m.url)}" target="_top" rel="noopener" title="${escapeHtml(title)}">${label}</a>`;
   };
@@ -112,11 +108,6 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
   .nav:hover, .nav:focus-visible { text-decoration: underline; }
   .nav--empty { opacity: 0.45; font-weight: 400; }
   .ring__name { font-weight: 600; white-space: nowrap; }
-  .nm--short { display: none; }
-  @media (max-width: 460px) {
-    .nm--full { display: none; }
-    .nm--short { display: inline; }
-  }
   .ring__sep { opacity: 0.4; }
   .warn {
     margin-top: 0.4rem;
