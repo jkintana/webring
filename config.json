@@ -12,9 +12,7 @@
     }
   ],
   "siteUrl": "https://waisi.live",
-  "previousSiteUrls": [
-    "https://ring.waisi.live"
-  ],
+  "previousSiteUrls": [],
   "healthcheck": {
     "timeoutMs": 8000,
     "concurrency": 4
