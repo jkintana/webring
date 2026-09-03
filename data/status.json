@@ -1,10 +1,14 @@
 {
-  "checkedAt": "2026-09-03T00:40:21.395Z",
+  "checkedAt": "2026-09-03T00:41:38.476Z",
   "embedBase": "https://waisi.live/embed",
   "acceptedBases": [
     "https://waisi.live/embed"
   ],
   "results": {
+    "anaya": {
+      "status": "no_webring_embed",
+      "detail": null
+    },
     "celeste": {
       "status": "no_webring_embed",
       "detail": null
@@ -14,6 +18,10 @@
       "detail": null
     },
     "kaustubh": {
+      "status": "no_webring_embed",
+      "detail": null
+    },
+    "sam": {
       "status": "no_webring_embed",
       "detail": null
     },
