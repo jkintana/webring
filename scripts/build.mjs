@@ -58,9 +58,22 @@ function embedPage(member) {
   const { prev, next } = neighbours(member);
   const health = healthOf(member.slug);
   const randomTarget = `${config.siteUrl}/random`;
-  const link = (m, label) => m
-    ? `<a class="nav" href="${escapeHtml(m.url)}" target="_top" rel="noopener" title="${escapeHtml(m.name)}">${label}</a>`
-    : `<span class="nav nav--empty">${label}</span>`;
+  // Label is the neighbour's name, so the bar says who you are going to rather
+  // than just which direction. Falls back to prev/next when the ring is empty.
+  const link = (m, dir) => {
+    const arrow = dir === 'prev' ? '&larr;' : '&rarr;';
+    if (!m) return `<span class="nav nav--empty">${dir === 'prev' ? `${arrow} prev` : `next ${arrow}`}</span>`;
+    // Full names overflow a phone (404px of content into 351px), so ship both
+    // and let CSS pick. First word only is enough to know where you are going.
+    const full = escapeHtml(m.name);
+    const short = escapeHtml(m.name.split(/\s+/)[0]);
+    const nm = full === short
+      ? `<span class="nm">${full}</span>`
+      : `<span class="nm nm--full">${full}</span><span class="nm nm--short">${short}</span>`;
+    const label = dir === 'prev' ? `${arrow} ${nm}` : `${nm} ${arrow}`;
+    const title = dir === 'prev' ? `Previous site: ${m.name}` : `Next site: ${m.name}`;
+    return `<a class="nav" href="${escapeHtml(m.url)}" target="_top" rel="noopener" title="${escapeHtml(title)}">${label}</a>`;
+  };
 
   return `<!doctype html>
 <html lang="en">
@@ -99,6 +112,11 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
   .nav:hover, .nav:focus-visible { text-decoration: underline; }
   .nav--empty { opacity: 0.45; font-weight: 400; }
   .ring__name { font-weight: 600; white-space: nowrap; }
+  .nm--short { display: none; }
+  @media (max-width: 460px) {
+    .nm--full { display: none; }
+    .nm--short { display: inline; }
+  }
   .ring__sep { opacity: 0.4; }
   .warn {
     margin-top: 0.4rem;
@@ -116,7 +134,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
 </head>
 <body>
 <nav class="ring" aria-label="${escapeHtml(config.name)} webring">
-  <span class="ring__start">${link(prev, '&larr; prev')}</span>
+  <span class="ring__start">${link(prev, 'prev')}</span>
   <span class="ring__mid">
     <a class="nav" href="${escapeHtml(randomTarget)}" target="_top" rel="noopener">rand</a>
     <span class="ring__sep" aria-hidden="true">&middot;</span>
@@ -124,7 +142,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
     <span class="ring__sep" aria-hidden="true">&middot;</span>
     <a class="nav" href="${escapeHtml(config.siteUrl)}" target="_top" rel="noopener">list</a>
   </span>
-  <span class="ring__end">${link(next, 'next &rarr;')}</span>
+  <span class="ring__end">${link(next, 'next')}</span>
 </nav>
 ${inRing(health) ? '' : `<p class="warn">This site is not in the ring yet: ${escapeHtml(HEALTH_LABEL[health])}. Only you see this note.</p>`}
 <script>
