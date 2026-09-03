@@ -43,12 +43,19 @@ function neighbours(member) {
   // Not in the ring themselves: still show the way in, if there is one.
   if (i === -1) {
     if (pool.length === 0) return { prev: null, next: null };
-    return { prev: pool[pool.length - 1], next: pool[0] };
+    return collapse({ prev: pool[pool.length - 1], next: pool[0] });
   }
-  return {
+  return collapse({
     prev: pool[(i - 1 + pool.length) % pool.length],
     next: pool[(i + 1) % pool.length],
-  };
+  });
+}
+
+/** With only one other site alive, prev and next are the same person. Showing
+ *  them twice reads like two destinations, so keep just the forward arrow. */
+function collapse(n) {
+  if (n.prev && n.next && n.prev.slug === n.next.slug) return { prev: null, next: n.next };
+  return n;
 }
 
 const cssVars = (m) => [
