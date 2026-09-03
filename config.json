@@ -19,7 +19,7 @@
   "siteUrl": "https://waisi.live",
   "previousSiteUrls": [],
   "analytics": {
-    "cloudflareToken": ""
+    "cloudflareToken": "337fd1381dd6499a8497ab062d336ced"
   },
   "healthcheck": {
     "timeoutMs": 8000,

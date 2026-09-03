@@ -223,7 +223,7 @@ function analyticsTag() {
     console.warn(`config.analytics.cloudflareToken looks wrong; skipping the tag.`);
     return '';
   }
-  return `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" `
+  return `<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" `
     + `data-cf-beacon='{"token": "${token}"}'></script>`;
 }
 
