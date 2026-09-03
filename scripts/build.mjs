@@ -57,6 +57,7 @@ const cssVars = (m) => [
 function embedPage(member) {
   const { prev, next } = neighbours(member);
   const health = healthOf(member.slug);
+  const randomTarget = `${config.siteUrl}/random`;
   const link = (m, label) => m
     ? `<a class="nav" href="${escapeHtml(m.url)}" target="_top" rel="noopener" title="${escapeHtml(m.name)}">${label}</a>`
     : `<span class="nav nav--empty">${label}</span>`;
@@ -92,11 +93,13 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
     border-radius: 0.4rem;
   }
   .ring__start { justify-self: start; }
-  .ring__mid { justify-self: center; display: flex; align-items: center; gap: 0.75rem; }
+  .ring__mid { justify-self: center; display: flex; align-items: center; gap: 0.4rem; }
   .ring__end { justify-self: end; }
   .nav { color: var(--link); text-decoration: none; font-weight: 600; white-space: nowrap; }
   .nav:hover, .nav:focus-visible { text-decoration: underline; }
   .nav--empty { opacity: 0.45; font-weight: 400; }
+  .ring__name { font-weight: 600; white-space: nowrap; }
+  .ring__sep { opacity: 0.4; }
   .warn {
     margin-top: 0.4rem;
     padding: 0.4rem 0.75rem;
@@ -107,7 +110,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
   }
   @media (max-width: 400px) {
     .ring { gap: 0.4rem; padding: 0.6rem 0.5rem; }
-    .ring__mid { gap: 0.5rem; }
+    .ring__mid { gap: 0.3rem; }
   }
 </style>
 </head>
@@ -115,7 +118,11 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
 <nav class="ring" aria-label="${escapeHtml(config.name)} webring">
   <span class="ring__start">${link(prev, '&larr; prev')}</span>
   <span class="ring__mid">
-    <a class="nav" href="${escapeHtml(config.siteUrl)}" target="_top" rel="noopener">${escapeHtml(config.name)}</a>
+    <a class="nav" href="${escapeHtml(randomTarget)}" target="_top" rel="noopener">rand</a>
+    <span class="ring__sep" aria-hidden="true">&middot;</span>
+    <span class="ring__name">${escapeHtml(config.name)}</span>
+    <span class="ring__sep" aria-hidden="true">&middot;</span>
+    <a class="nav" href="${escapeHtml(config.siteUrl)}" target="_top" rel="noopener">list</a>
   </span>
   <span class="ring__end">${link(next, 'next &rarr;')}</span>
 </nav>
