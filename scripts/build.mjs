@@ -71,7 +71,8 @@ const cssVars = (m) => [
 
 function embedPage(member) {
   const { prev, next } = neighbours(member);
-  const randomTarget = `${config.siteUrl}/random`;
+  // ?from= lets /random skip the site you are already on
+  const randomTarget = `${config.siteUrl}/random?from=${encodeURIComponent(member.slug)}`;
   // Label is the neighbour's name, so the bar says who you are going to rather
   // than just which direction. Falls back to prev/next when the ring is empty.
   const link = (m, dir) => {
@@ -167,7 +168,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
 function randomPage() {
   // Healthy ring only. Sending someone at random to a site that has not
   // installed the widget is the same dead end prev/next avoids.
-  const pool = ring.map((m) => m.url);
+  const pool = ring.map((m) => ({ slug: m.slug, url: m.url }));
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -175,8 +176,19 @@ function randomPage() {
 <title>${escapeHtml(config.name)} &middot; random</title>
 <meta name="robots" content="noindex">
 <script>
-  var sites = ${JSON.stringify(pool)};
-  location.replace(sites.length ? sites[Math.floor(Math.random() * sites.length)] : ${JSON.stringify(config.siteUrl)});
+  (function () {
+    var sites = ${JSON.stringify(pool)};
+    var home = ${JSON.stringify(config.siteUrl)};
+    // The widget passes ?from=<slug>, so we can avoid sending someone back to
+    // the site they clicked from. Falls through to the full ring when that
+    // would leave nowhere to go, and to the member list when the ring is empty.
+    var from = new URLSearchParams(location.search).get('from');
+    var pick = sites.filter(function (s) { return s.slug !== from; });
+    // Nowhere else to send them: the member list beats reloading the page they
+    // are already looking at.
+    if (!pick.length) { location.replace(home); return; }
+    location.replace(pick[Math.floor(Math.random() * pick.length)].url);
+  })();
 </script>
 </head>
 <body><p>Sending you somewhere at random&hellip;</p></body>
