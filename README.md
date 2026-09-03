@@ -67,26 +67,6 @@ npm run healthcheck  # hit every member site, rewrite data/status.json
 `siteUrl`, since the check looks for `<siteUrl>/embed/<slug>` and nothing can
 match until the domain is real.
 
-## Setup checklist
-
-- [x] Name and domain: `waisi.live` (apex, not the subdomain)
-- [ ] Push to GitHub as a **public** repo (Actions minutes are free and
-      unlimited there; a private repo would burn its 2,000 monthly minutes)
-- [ ] Settings → Pages → Source: **GitHub Actions**
-- [ ] Settings → Pages → Custom domain: `waisi.live`, Save
-- [ ] In Squarespace Domains → `waisi.live` → DNS Settings, replace the apex
-      `A` records (currently Squarespace's) with GitHub's four:
-      `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`.
-      An apex cannot be a CNAME, which is why this differs from a subdomain.
-- [ ] Wait for GitHub's DNS check to pass, then tick **Enforce HTTPS**
-      (can take up to 24h to become available)
-- [ ] Push once and confirm the workflow deploys
-- [ ] Add the iframe to your own site first, so there is one healthy member
-- [ ] Send everyone else their snippet
-
-`dist/CNAME` is generated from `siteUrl`, so the custom domain survives every
-deploy. Without it Pages clears the domain each time the workflow publishes.
-
 ## Health statuses
 
 | status | in the ring? | meaning |
@@ -96,40 +76,3 @@ deploy. Without it Pages clears the domain each time the workflow publishes.
 | `site_unreachable` | no | fetch failed, non-2xx, or timed out |
 | `no_webring_embed` | no | site loaded but no embed URL is on the page |
 | `slug_mismatch` | no | an embed URL is present but for a different slug |
-
-## Changing the domain later
-
-Two separate things break, and only one is automatic.
-
-**Health checks: handled.** Add the old domain to `previousSiteUrls` in
-`config.json` and members still on it stay in the ring, reported as
-`ok_legacy_url` so you can see who has not moved yet. Without that entry every
-member flips to `no_webring_embed` the moment you change `siteUrl`.
-
-```json
-"siteUrl": "https://ring.newname.dev",
-"previousSiteUrls": ["https://ring.waisi.live"]
-```
-
-**The widget itself: needs the old domain to keep resolving.** Members' iframes
-point at the old URL, so if it stops answering they render blank no matter what
-this repo says. Keep the old domain registered and forward it, path intact, to
-the new one. Porkbun's URL forwarding does this for free, as do Cloudflare
-redirect rules.
-
-Note that GitHub Pages allows **one** custom domain per repository, so you
-cannot simply serve both domains from this site. The old one has to redirect.
-
-Only if you let the old domain lapse does everyone have to edit their site.
-
-## Two Actions caveats worth knowing
-
-**Scheduled runs are best-effort.** GitHub says the `schedule` event "can be
-delayed during periods of high loads" and that "some queued jobs may be
-dropped", with the top of the hour being the worst. The cron is set to `:37` for
-that reason. A missed run just means health data is an hour stale.
-
-**Scheduled workflows are disabled after 60 days of no repository activity** on
-public repos. If this ring sits completely untouched for two months the checks
-stop until someone re-enables the workflow in the Actions tab. Adding a member
-or any other commit resets the clock.
