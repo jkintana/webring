@@ -1,19 +1,18 @@
 # webring
 
-A small webring for a group of friends' sites. Members live as YAML files in
-`members/`. A scheduled job checks that each site is carrying the widget, and
-the ring skips anyone who is down.
+A webring of friends who met at the Wisconsin AI Safety Initiative. Members
+live as YAML files in `members/`. A scheduled job checks that each site is
+carrying the widget, and the ring skips anyone who is down.
 
-Health checks run in GitHub Actions and get committed to `data/status.json`,
-which the build reads.
+Health checks run in GitHub Actions and get committed to `data/status.json`.
 
 The ring order reshuffles daily, sorted by a hash of (slug, UTC date). A new
 day's order shows up on the first CI run after UTC midnight.
 
 ## Joining
 
-Two things have to happen. You get an entry in this repo, and you put one line
-of HTML on your site. Either order works, but you will not appear in the ring
+Two things have to happen: you get an entry in this repo, and you put one line
+of HTML on your site! Either order works, but you will not appear in the ring
 until both are done.
 
 ### 1. Get a member entry
@@ -25,9 +24,9 @@ name: Your Name
 url: https://your-site.example
 ```
 
-The filename minus `.yaml` is your slug. Lowercase letters, digits and dashes.
-Only `name` and `url` are required; everything else is styling, covered below
-and in `members/EXAMPLE.yaml.txt`.
+The filename minus `.yaml` is your slug, which should consist of lowercase
+letters, digits and dashes. Only `name` and `url` are required; everything else
+is styling, covered below and in `members/EXAMPLE.yaml.txt`.
 
 You can also just ask Jeremy to add you and skip the PR.
 
@@ -57,7 +56,7 @@ routes around you, so nobody clicking prev or next hits a dead end.
 ## Styling the widget
 
 Your own CSS cannot reach inside the widget. It is a cross-origin iframe, so no
-selector you write will touch the bar. You have three ways in.
+selector you write will touch the bar. You have three options:
 
 1. Your member YAML, which applies everywhere your embed appears:
 
