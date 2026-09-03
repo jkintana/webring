@@ -64,7 +64,6 @@ const cssVars = (m) => [
 
 function embedPage(member) {
   const { prev, next } = neighbours(member);
-  const health = healthOf(member.slug);
   const randomTarget = `${config.siteUrl}/random`;
   // Label is the neighbour's name, so the bar says who you are going to rather
   // than just which direction. Falls back to prev/next when the ring is empty.
@@ -90,7 +89,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
 <style>
   :root { ${cssVars(member)} }
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
+  html, body { margin: 0; padding: 0; overflow: hidden; }
   body {
     background: var(--bg);
     color: var(--text);
@@ -117,14 +116,6 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
   .nav--empty { opacity: 0.45; font-weight: 400; }
   .ring__name { font-weight: 600; white-space: nowrap; }
   .ring__sep { opacity: 0.4; }
-  .warn {
-    margin-top: 0.4rem;
-    padding: 0.4rem 0.75rem;
-    font-size: 0.85em;
-    border: 1px dashed var(--border);
-    border-radius: 0.3rem;
-    opacity: 0.8;
-  }
   @media (max-width: 400px) {
     .ring { gap: 0.4rem; padding: 0.6rem 0.5rem; }
     .ring__mid { gap: 0.3rem; }
@@ -143,7 +134,6 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
   </span>
   <span class="ring__end">${link(next, 'next')}</span>
 </nav>
-${inRing(health) ? '' : `<p class="warn">This site is not in the ring yet: ${escapeHtml(HEALTH_LABEL[health])}. Only you see this note.</p>`}
 <script>
   // Colours and type can be overridden per-embed with query params, which is
   // how a member restyles the widget without editing their config.
@@ -168,7 +158,9 @@ ${inRing(health) ? '' : `<p class="warn">This site is not in the ring yet: ${esc
 }
 
 function randomPage() {
-  const pool = (ring.length ? ring : ordered).map((m) => m.url);
+  // Healthy ring only. Sending someone at random to a site that has not
+  // installed the widget is the same dead end prev/next avoids.
+  const pool = ring.map((m) => m.url);
   return `<!doctype html>
 <html lang="en">
 <head>

@@ -24,7 +24,10 @@ async function fetchText(url, timeoutMs) {
   }
 }
 
-function classify(body, member, embedBases) {
+function classify(rawBody, member, embedBases) {
+  // A commented-out embed is not installed, however much it looks like it in
+  // the source. Strip comments before matching so it reads as absent.
+  const body = rawBody.replace(/<!--[\s\S]*?-->/g, '');
   // Try the current domain first, then any the ring used to live at, so a
   // domain move does not knock everyone out of the ring at once.
   let sawSomeEmbed = null;

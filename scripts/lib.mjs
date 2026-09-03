@@ -34,19 +34,20 @@ export async function readMembers() {
     if (!/^[a-z0-9-]+$/.test(slug)) {
       throw new Error(`members/${file}: slug must be lowercase letters, digits and dashes`);
     }
+    const where = `members/${file}`;
     members.push({
       slug,
       name: String(raw.name),
-      url: String(raw.url).replace(/\/+$/, ''),
-      text_color: raw.text_color ?? null,
-      border_color: raw.border_color ?? null,
-      border_style: raw.border_style ?? null,
-      link_color: raw.link_color ?? null,
-      on_link_color: raw.on_link_color ?? null,
-      background: raw.background ?? null,
-      font: raw.font ?? null,
-      font_size: raw.font_size ?? null,
-      stylesheet: raw.stylesheet ?? null,
+      url: safeUrl(raw.url, `${where} url`),
+      text_color: cssValue(raw.text_color, `${where} text_color`),
+      border_color: cssValue(raw.border_color, `${where} border_color`),
+      border_style: cssValue(raw.border_style, `${where} border_style`),
+      link_color: cssValue(raw.link_color, `${where} link_color`),
+      on_link_color: cssValue(raw.on_link_color, `${where} on_link_color`),
+      background: cssValue(raw.background, `${where} background`),
+      font: cssValue(raw.font, `${where} font`),
+      font_size: cssValue(raw.font_size, `${where} font_size`),
+      stylesheet: raw.stylesheet == null ? null : safeUrl(raw.stylesheet, `${where} stylesheet`),
     });
   }
   members.sort((a, b) => a.slug.localeCompare(b.slug));
@@ -97,6 +98,38 @@ export function ringOrder(members, dayKey = utcDayKey()) {
     members.map((m) => [m.slug, createHash('sha256').update(`${m.slug}:${dayKey}`).digest('hex')])
   );
   return [...members].sort((a, b) => rank.get(a.slug).localeCompare(rank.get(b.slug)));
+}
+
+/**
+ * A value safe to drop into an inline `style` block. Anything that could close
+ * the declaration or open a tag is rejected, matching the guard on the runtime
+ * query-param overrides. Returns null for a bad value so the caller falls back
+ * to its default rather than emitting broken or hostile CSS.
+ */
+function cssValue(raw, where) {
+  if (raw == null) return null;
+  const v = String(raw);
+  if (/[;{}<>()\\]|\/\*|url\s*\(|@import|expression/i.test(v)) {
+    console.warn(`${where}: refusing CSS value ${JSON.stringify(v)}; using the default instead.`);
+    return null;
+  }
+  return v;
+}
+
+/** Only http(s) links get rendered. javascript:, data: and friends become live
+ *  hrefs in the top frame otherwise, since the widget uses target="_top". */
+function safeUrl(raw, where) {
+  const v = String(raw).trim();
+  let parsed;
+  try {
+    parsed = new URL(v);
+  } catch {
+    throw new Error(`${where}: "${v}" is not a valid absolute URL (include https://)`);
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new Error(`${where}: "${v}" must be http or https, got ${parsed.protocol}`);
+  }
+  return v.replace(/\/+$/, '');
 }
 
 export function escapeHtml(s) {
