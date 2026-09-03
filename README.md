@@ -1,17 +1,14 @@
 # webring
 
 A small webring for a group of friends' sites. Members live as YAML files in
-`members/`. A scheduled job checks that each site is actually carrying the
-widget, and the ring skips anyone who is down.
+`members/`. A scheduled job checks that each site is carrying the widget, and
+the ring skips anyone who is down.
 
-There is no server. Health checks run in GitHub Actions and get committed to
-`data/status.json`, which the build reads.
+Health checks run in GitHub Actions and get committed to `data/status.json`,
+which the build reads.
 
-The ring order reshuffles daily, sorted by a hash of (slug, UTC date). That is
-the same trick `kognise/overengineering` uses: arbitrary, but deterministic, so
-every rebuild within a day agrees on the order. Since the site is built rather
-than served, a new day's order shows up on the first CI run after UTC midnight
-instead of at midnight itself.
+The ring order reshuffles daily, sorted by a hash of (slug, UTC date). A new
+day's order shows up on the first CI run after UTC midnight.
 
 ## Joining
 
@@ -32,7 +29,7 @@ The filename minus `.yaml` is your slug. Lowercase letters, digits and dashes.
 Only `name` and `url` are required; everything else is styling, covered below
 and in `members/EXAMPLE.yaml.txt`.
 
-You can also just ask whoever runs the ring to add you and skip the PR.
+You can also just ask Jeremy to add you and skip the PR.
 
 ### 2. Put the widget on your site
 
@@ -55,8 +52,7 @@ A job runs hourly and fetches every member site. The statuses it can report are
 listed at the bottom of this file.
 
 Until it finds your embed, the index lists you under Inactive and the ring
-routes around you, so nobody clicking prev or next hits a dead end. Give it an
-hour before you start wondering what went wrong.
+routes around you, so nobody clicking prev or next hits a dead end.
 
 ## Styling the widget
 
@@ -113,8 +109,8 @@ npm run healthcheck  # hit every member site, rewrite data/status.json
 ```
 
 `npm run healthcheck` does nothing while `config.json` still holds the
-placeholder `siteUrl`, since it searches for `<siteUrl>/embed/<slug>` and
-nothing can match until the domain is real.
+placeholder `siteUrl`, since it searches for `<siteUrl>/embed/<slug>`, a string
+that only exists once you set your domain.
 
 ## Health statuses
 
@@ -123,5 +119,5 @@ nothing can match until the domain is real.
 | `ok` | yes | embedding the current domain |
 | `ok_legacy_url` | yes | embedding a domain listed in `previousSiteUrls` |
 | `site_unreachable` | no | fetch failed, returned non-2xx, or timed out |
-| `no_webring_embed` | no | the page loaded, but no embed URL is on it |
-| `slug_mismatch` | no | an embed URL is there, for somebody else's slug |
+| `no_webring_embed` | no | the page loaded but no embed URL is on it |
+| `slug_mismatch` | no | an embed URL is there for somebody else's slug |
