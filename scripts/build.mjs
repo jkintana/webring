@@ -199,7 +199,7 @@ function memberRow(m, withStatus) {
   const h = healthOf(m.slug);
   const detail = status.results?.[m.slug]?.detail;
   const statusCell = withStatus
-    ? `\n        <td class="st">${escapeHtml(HEALTH_LABEL[h])}${detail ? ` <span class="detail">${escapeHtml(detail)}</span>` : ''}</td>`
+    ? `\n        <td class="st">${escapeHtml(HEALTH_LABEL[h])}${detail ? ` <span class="detail">(${escapeHtml(detail)})</span>` : ''}</td>`
     : '';
   return `      <tr>
         <td><a href="${escapeHtml(m.url)}" rel="noopener">${escapeHtml(m.name)}</a></td>
@@ -212,7 +212,11 @@ function indexPage() {
     ? `Last checked ${escapeHtml(status.checkedAt.replace('T', ' ').replace(/\..+/, ' UTC'))}`
     : 'Not checked yet';
   const active = ordered.filter((m) => inRing(healthOf(m.slug)));
-  const inactive = ordered.filter((m) => !inRing(healthOf(m.slug)));
+  // Ring order means nothing for people who are not in the ring, so list them
+  // alphabetically instead. Names lead with the first name, so this sorts by it.
+  const inactive = ordered
+    .filter((m) => !inRing(healthOf(m.slug)))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const table = (rows, withStatus) => `  <table>
     <thead><tr><th>Member</th><th>Site</th>${withStatus ? '<th>Status</th>' : ''}</tr></thead>
