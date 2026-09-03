@@ -71,8 +71,6 @@ const cssVars = (m) => [
 
 function embedPage(member) {
   const { prev, next } = neighbours(member);
-  // ?from= lets /random skip the site you are already on
-  const randomTarget = `${config.siteUrl}/random?from=${encodeURIComponent(member.slug)}`;
   // Label is the neighbour's name, so the bar says who you are going to rather
   // than just which direction. Falls back to prev/next when the ring is empty.
   const link = (m, dir) => {
@@ -122,8 +120,6 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
   .nav { color: var(--link); text-decoration: none; font-weight: 600; white-space: nowrap; }
   .nav:hover, .nav:focus-visible { text-decoration: underline; }
   .nav--empty { opacity: 0.45; font-weight: 400; }
-  .ring__name { font-weight: 600; white-space: nowrap; }
-  .ring__sep { opacity: 0.4; }
   @media (max-width: 400px) {
     .ring { gap: 0.4rem; padding: 0.6rem 0.5rem; }
     .ring__mid { gap: 0.3rem; }
@@ -134,11 +130,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
 <nav class="ring" aria-label="${escapeHtml(config.name)} webring">
   <span class="ring__start">${link(prev, 'prev')}</span>
   <span class="ring__mid">
-    <a class="nav" href="${escapeHtml(randomTarget)}" target="_top" rel="noopener">rand</a>
-    <span class="ring__sep" aria-hidden="true">&middot;</span>
-    <span class="ring__name">${escapeHtml(config.name)}</span>
-    <span class="ring__sep" aria-hidden="true">&middot;</span>
-    <a class="nav" href="${escapeHtml(config.siteUrl)}" target="_top" rel="noopener">list</a>
+    <a class="nav" href="${escapeHtml(config.siteUrl)}" target="_top" rel="noopener">${escapeHtml(config.name)}</a>
   </span>
   <span class="ring__end">${link(next, 'next')}</span>
 </nav>
