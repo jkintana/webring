@@ -27,14 +27,22 @@ const dayKey = utcDayKey();
 const ordered = ringOrder(members, dayKey);
 const ring = ordered.filter((m) => inRing(healthOf(m.slug)));
 
-/** Neighbours within the healthy ring. Falls back to all members if the ring
- *  is too small to navigate, so a fresh install still shows working links. */
+/**
+ * Neighbours within the healthy ring, and only ever the healthy ring. Never
+ * falls back to the full member list: pointing someone at a site that has not
+ * installed the widget is the exact dead end the health check exists to stop.
+ *
+ * If nobody else is in the ring there is nowhere to send people, so prev/next
+ * come back null and the widget renders without them.
+ */
 function neighbours(member) {
-  const pool = ring.length >= 2 ? ring : ordered;
-  if (pool.length === 0) return { prev: null, next: null };
+  const pool = ring;
   const i = pool.findIndex((m) => m.slug === member.slug);
+  // In the ring, but the only one in it.
+  if (i !== -1 && pool.length < 2) return { prev: null, next: null };
+  // Not in the ring themselves: still show the way in, if there is one.
   if (i === -1) {
-    // Not in the ring: point at the ends so the widget is still useful.
+    if (pool.length === 0) return { prev: null, next: null };
     return { prev: pool[pool.length - 1], next: pool[0] };
   }
   return {
@@ -62,7 +70,7 @@ function embedPage(member) {
   // than just which direction. Falls back to prev/next when the ring is empty.
   const link = (m, dir) => {
     const arrow = dir === 'prev' ? '&larr;' : '&rarr;';
-    if (!m) return `<span class="nav nav--empty">${dir === 'prev' ? `${arrow} prev` : `next ${arrow}`}</span>`;
+    if (!m) return '';
     // First name only. Full names ran to 404px of content, which overflows a
     // 375px phone; the full name still rides along in the title.
     const first = escapeHtml(m.name.split(/\s+/)[0]);
