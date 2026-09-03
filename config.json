@@ -1,6 +1,6 @@
 {
   "name": "waisi.live",
-  "tagline": "A webring of friends who met at the Wisconsin AI Safety Initiative.",
+  "tagline": "A webring of friends who met at the Wisconsin AI Safety Initiative. Inspired by overengineeRING!",
   "taglineLinks": [
     {
       "text": "webring",
@@ -9,6 +9,10 @@
     {
       "text": "Wisconsin AI Safety Initiative",
       "url": "https://waisi.org"
+    },
+    {
+      "text": "overengineeRING",
+      "url": "https://overengineering.kognise.dev/"
     }
   ],
   "siteUrl": "https://waisi.live",

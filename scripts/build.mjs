@@ -57,7 +57,6 @@ const cssVars = (m) => [
 function embedPage(member) {
   const { prev, next } = neighbours(member);
   const health = healthOf(member.slug);
-  const randomTarget = `${config.siteUrl}/random`;
   const link = (m, label) => m
     ? `<a class="nav" href="${escapeHtml(m.url)}" target="_top" rel="noopener" title="${escapeHtml(m.name)}">${label}</a>`
     : `<span class="nav nav--empty">${label}</span>`;
@@ -98,7 +97,6 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
   .nav { color: var(--link); text-decoration: none; font-weight: 600; white-space: nowrap; }
   .nav:hover, .nav:focus-visible { text-decoration: underline; }
   .nav--empty { opacity: 0.45; font-weight: 400; }
-  .ring__name { font-weight: 600; white-space: nowrap; }
   .warn {
     margin-top: 0.4rem;
     padding: 0.4rem 0.75rem;
@@ -117,9 +115,7 @@ ${member.stylesheet ? `<link rel="stylesheet" href="${escapeHtml(member.styleshe
 <nav class="ring" aria-label="${escapeHtml(config.name)} webring">
   <span class="ring__start">${link(prev, '&larr; prev')}</span>
   <span class="ring__mid">
-    <a class="nav" href="${escapeHtml(randomTarget)}" target="_top" rel="noopener">random</a>
-    <span class="ring__name">${escapeHtml(config.name)}</span>
-    <a class="nav" href="${escapeHtml(config.siteUrl)}" target="_top" rel="noopener">list</a>
+    <a class="nav" href="${escapeHtml(config.siteUrl)}" target="_top" rel="noopener">${escapeHtml(config.name)}</a>
   </span>
   <span class="ring__end">${link(next, 'next &rarr;')}</span>
 </nav>
