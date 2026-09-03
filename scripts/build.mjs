@@ -179,17 +179,14 @@ function randomPage() {
 
 /** Tagline with one phrase optionally turned into a link. The tagline is
  *  escaped first, so this never allows arbitrary HTML in from config. */
-/** Tagline with chosen phrases turned into links. The tagline is escaped first,
- *  so this never allows arbitrary HTML in from config. */
-function taglineHtml() {
-  let html = escapeHtml(config.tagline);
+/** Turns the phrases in config.taglineLinks into links. Escapes first, so this
+ *  never allows arbitrary HTML in from config. */
+function linkify(text) {
+  let html = escapeHtml(text ?? '');
   for (const l of config.taglineLinks ?? []) {
     if (!l?.text || !l?.url) continue;
     const needle = escapeHtml(l.text);
-    if (!html.includes(needle)) {
-      console.warn(`config.taglineLinks: "${l.text}" is not in the tagline; left unlinked.`);
-      continue;
-    }
+    if (!html.includes(needle)) continue;
     html = html.replace(needle, `<a href="${escapeHtml(l.url)}" rel="noopener">${needle}</a>`);
   }
   return html;
@@ -230,7 +227,7 @@ ${rows.map((m) => memberRow(m, withStatus)).join('\n')}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(config.name)}</title>
-<meta name="description" content="${escapeHtml(config.tagline)}">
+<meta name="description" content="${escapeHtml([config.tagline, config.credit].filter(Boolean).join(' '))}">
 <style>
   :root { color-scheme: light dark; --fg: #16181d; --bg: #fdfdfc; --muted: #5d6470; --line: #d8d8d4; --link: #0b57c7; }
   @media (prefers-color-scheme: dark) {
@@ -253,7 +250,7 @@ ${rows.map((m) => memberRow(m, withStatus)).join('\n')}
 </head>
 <body>
   <h1>${escapeHtml(config.name)}</h1>
-  <p class="tagline">${taglineHtml()}${config.invite ? ` ${escapeHtml(config.invite)}` : ''}</p>
+  <p class="tagline">${linkify(config.tagline)}${config.credit ? `<br>${linkify(config.credit)}` : ''}</p>
 
   <h2>Active</h2>
 ${active.length ? table(active, false) : '  <p class="invite">Nobody has the widget installed yet.</p>'}

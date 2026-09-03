@@ -1,6 +1,7 @@
 {
   "name": "waisi.live",
-  "tagline": "A webring of friends who met at the Wisconsin AI Safety Initiative. Inspired by overengineeRING!",
+  "tagline": "A webring of friends who met at the Wisconsin AI Safety Initiative.",
+  "credit": "Inspired by overengineeRING!",
   "taglineLinks": [
     {
       "text": "webring",
