@@ -1,8 +1,11 @@
 name: Anaya Mandal
 url: https://total-anayalation.github.io
+text_color: "#000000"
 link_color: "#610d8f"
+border_color: "#000000"
+border_style: none     # or `none` to drop the border entirely
 on_link_color: "#ffffff"
-border_style: none
+background: transparent
 font: "DM Mono, monospace"
-font_size: "0.74rem"
+font_size: "10.74rem"
 stylesheet: "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap"
