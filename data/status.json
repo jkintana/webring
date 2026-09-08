@@ -1,12 +1,12 @@
 {
-  "checkedAt": "2026-09-08T14:45:57.941Z",
+  "checkedAt": "2026-09-08T18:57:22.105Z",
   "embedBase": "https://waisi.live/embed",
   "acceptedBases": [
     "https://waisi.live/embed"
   ],
   "results": {
     "anaya": {
-      "status": "no_webring_embed",
+      "status": "ok",
       "detail": null
     },
     "andy": {
