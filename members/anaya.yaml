@@ -1,2 +1,8 @@
 name: Anaya Mandal
 url: https://total-anayalation.github.io
+link_color: "#8B5CF6"
+on_link_color: "#ffffff"
+border_style: none
+font: "Lora, system-ui, serif"
+font_size: "16px"
+stylesheet: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap"
