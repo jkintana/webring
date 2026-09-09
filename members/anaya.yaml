@@ -7,5 +7,5 @@ border_style: none     # or `none` to drop the border entirely
 on_link_color: "#ffffff"
 background: transparent
 font: "DM Mono, monospace"
-font_size: "10.74rem"
+font_size: "0.74rem"
 stylesheet: "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap"
