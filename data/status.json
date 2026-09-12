@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-12T19:37:32.801Z",
+  "checkedAt": "2026-09-12T22:31:29.148Z",
   "embedBase": "https://waisi.live/embed",
   "acceptedBases": [
     "https://waisi.live/embed"
@@ -18,8 +18,8 @@
       "detail": null
     },
     "jeremy": {
-      "status": "site_unreachable",
-      "detail": "fetch failed"
+      "status": "ok",
+      "detail": null
     },
     "kaustubh": {
       "status": "ok",
