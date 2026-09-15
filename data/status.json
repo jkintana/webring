@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-14T23:25:55.665Z",
+  "checkedAt": "2026-09-15T01:53:05.475Z",
   "embedBase": "https://waisi.live/embed",
   "acceptedBases": [
     "https://waisi.live/embed"
@@ -14,8 +14,8 @@
       "detail": null
     },
     "celeste": {
-      "status": "ok",
-      "detail": null
+      "status": "site_unreachable",
+      "detail": "HTTP 404"
     },
     "jeremy": {
       "status": "ok",
