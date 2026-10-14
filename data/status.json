@@ -1,13 +1,13 @@
 {
-  "checkedAt": "2026-10-13T23:25:18.763Z",
+  "checkedAt": "2026-10-14T02:08:42.993Z",
   "embedBase": "https://waisi.live/embed",
   "acceptedBases": [
     "https://waisi.live/embed"
   ],
   "results": {
     "anaya": {
-      "status": "site_unreachable",
-      "detail": "HTTP 503"
+      "status": "ok",
+      "detail": null
     },
     "andy": {
       "status": "ok",
